@@ -24,4 +24,9 @@ export class CommandesService {
   updateCommande(commande:any, id:string){
     return this.db.collection('commandes').doc(id).update(commande);
   }
+
+  getAllCommandes() {
+    return this.db.collection('commandes').snapshotChanges();
+
+  }
 }

@@ -4,8 +4,7 @@ import { ChartType } from './apex.model';
 import { CommandesService } from '../../../core/services/commandes.service';
 
 import {
-  linewithDataChart, basicColumChart, columnlabelChart, lineColumAreaChart,
-  basicRadialBarChart, simplePieChart, donutChart, barChart, splineAreaChart, dashedLineChart
+  columnlabelChart
 } from './data';
 
 @Component({
@@ -22,19 +21,12 @@ export class ApexComponent implements OnInit {
   // bread crumb items
   breadCrumbItems: Array<{}>;
 
-  linewithDataChart: ChartType;
-  basicColumChart: ChartType;
   columnlabelChart: ChartType;
-  lineColumAreaChart: ChartType;
-  basicRadialBarChart: ChartType;
-  simplePieChart: ChartType;
-  donutChart: ChartType;
-  barChart: ChartType;
-  splineAreaChart: ChartType;
-  dashedLineChart: ChartType;
+
   user: any;
   commandes: any[] = [];
-
+  total: number[] = [];
+  totalOfMonths : string[] = [];
   constructor(private cmdService: CommandesService) { }
 
   ngOnInit() {
@@ -50,9 +42,9 @@ export class ApexComponent implements OnInit {
   }
 
   getCommandes(id: string) {
-    console.log(id);
+    // console.log(id);
 
-    this.cmdService.getCommandes(id).subscribe(data => {
+    this.cmdService.getAllCommandes().subscribe(data => {
       // console.log(data)
       this.commandes = data.map(fav => {
         // console.log(fav);
@@ -64,13 +56,14 @@ export class ApexComponent implements OnInit {
         }
       })
       // this.orders$ = this.commandes
-      // console.log(this.commandes);
+      // console.log('Liste de commandes : ',this.commandes);
       let groupKey = 0;
       let groups = this.commandes.reduce(function (r, o) {
         var m = o.date.split(('-'))[1];
         (r[m]) ? r[m].data.push(o) : r[m] = { group: String(groupKey++), data: [o] };
         return r;
       }, {});
+      // console.log('Les groupes', groups)
 
       var result = Object.keys(groups).map(function (k) { return groups[k]; });
       // console.log((result));
@@ -83,17 +76,16 @@ export class ApexComponent implements OnInit {
         });
         // console.log(nameOfMonth);
         let sum = 0;
-
         for (let index = 0; index < element.data.length; index++) {
           sum += element.data[index].total;
         }
-        console.log(nameOfMonth, '||', sum);
-
+        // console.log(nameOfMonth, '||', sum);
+        this.total.push(sum)
+        this.totalOfMonths.push(nameOfMonth)
 
       })
 
     })
-
 
   }
 
@@ -101,15 +93,9 @@ export class ApexComponent implements OnInit {
    * Fetches the chart data
    */
   private _fetchData() {
-    this.linewithDataChart = linewithDataChart;
-    this.basicColumChart = basicColumChart;
     this.columnlabelChart = columnlabelChart;
-    this.lineColumAreaChart = lineColumAreaChart;
-    this.basicRadialBarChart = basicRadialBarChart;
-    this.simplePieChart = simplePieChart;
-    this.donutChart = donutChart;
-    this.barChart = barChart;
-    this.splineAreaChart = splineAreaChart;
-    this.dashedLineChart = dashedLineChart;
+    this.columnlabelChart.series[0].data = this.total
+    this.columnlabelChart.xaxis.categories = this.totalOfMonths
+    console.log(columnlabelChart)
   }
 }
